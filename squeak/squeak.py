@@ -6,12 +6,11 @@ not null constraint.
 
 Usage from the command line:
 
-$ ./squeak.py <db> drop_column <db_name> <column_name> [safe]
-
-To run the unit tests:
-
-$ ./squeak.py test
-
+$ ./squeak.py <db> <table_name> subcommand
+Available subcommands:
+  drop_column <db_name> <column_name> [safe]
+  add_constraint not_null
+  drop_constraint not_null
 """
 
 import re
@@ -35,7 +34,7 @@ class Squeak(object):
         ).fetchone()
         
         if not self.creation_sql:
-            raise SqueakError("Wrong table name: '%s'" % table_name)
+            raise SqueakError("No such table: '%s'" % table_name)
             
         # -- parse the creation sql to get a list of field creation SQLs
         
@@ -77,7 +76,7 @@ class Squeak(object):
         
         # provided column doesn't exist
         if not found:
-            return False, u"Wrong column name: '%s'" % column_name
+            return False, u"No such column: '%s'" % column_name
         
         # create the new creation line
         fields = ', '.join(new_fields)
@@ -115,23 +114,34 @@ class Squeak(object):
 
 def main():
     def print_usage():
-        print ("Usage: %s <db_name> <table_name> "
-               "drop_column <column_name> [safe]"
-               % (sys.argv[0],))
+        print ("Usage: squeak.py <db> <table_name> subcommand\n\n"
+               "Available subcommands:\n"
+               "  drop_column <db_name> <column_name> [safe]\n"
+               "  rename_column <db_name> <old_column> <new_column>\n"
+               "  add_constraint not_null\n"
+               "  drop_constraint not_null")
 
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 3:
         print_usage()
         return
     
-    squeak = Squeak(sys.argv[1], sys.argv[2])
-            
-    if sys.argv[3] == 'drop_column':
+    try:
+        squeak = Squeak(sys.argv[1], sys.argv[2])
+    except SqueakError, e:
+        print "Error: %s" % e
+        return
+    
+    subcommand = sys.argv[3]
+    if subcommand == 'drop_column':
         safe = False
         if len(sys.argv) >= 6:
             safe = True
         print squeak.drop_column(sys.argv[4], safe=safe)[1]
         return
+    elif subcommand == 'add_constraint': pass
+    elif subcommand == 'drop_constraint': pass
     else:
+        print "Invalid subcommand: %s\n" % subcommand
         print_usage()
         return
 
