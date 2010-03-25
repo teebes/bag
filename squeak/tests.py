@@ -8,7 +8,7 @@ import unittest
 
 from squeak import Squeak
 
-class TestDropColumn(unittest.TestCase):
+class TestSqueak(unittest.TestCase):
     
     db = 'testdb'
 
@@ -68,34 +68,91 @@ INSERT INTO my_seat VALUES (2, 1, 'short')
             os.remove('testdb')
         except OSError: pass
     
+    # -- Drop tests --
+    
     def test_drop_regular_column(self):
-        cursor = sqlite3.connect(self.db).cursor()
-        start = len(cursor.execute("SELECT * from my_table").fetchone())
-        cursor.close()
-
-        squeak = Squeak(self.db, 'my_table')
-        squeak.drop_column('name')
-
-        cursor = sqlite3.connect(self.db).cursor()
-        end = len(cursor.execute("SELECT * from my_table").fetchone())
-        cursor.close()
-        
-        return self.assert_(start == end + 1)
+        return self._drop_column('my_table', 'name')
 
     def test_drop_foreign_key_column(self):
+        return self._drop_column('my_seat', 'table')
+    
+    def _drop_column(self, table, column):
         cursor = sqlite3.connect(self.db).cursor()
-        start = len(cursor.execute("SELECT * from my_seat").fetchone())
+        start = len(cursor.execute("SELECT * from %s" % table).fetchone())
         cursor.close()
 
-        squeak = Squeak(self.db, 'my_seat')
-        squeak.drop_column('table')
+        squeak = Squeak(self.db, table)
+        squeak.drop_column(column)
 
         cursor = sqlite3.connect(self.db).cursor()
-        end = len(cursor.execute("SELECT * from my_seat").fetchone())
+        end = len(cursor.execute("SELECT * from %s" % table).fetchone())
         cursor.close()
         
-        return self.assert_(start == end + 1)
+        return self.assert_(start == end + 1)    
+    
+    # -- Rename tests --
+    
+    def test_rename_regular_column(self):
+        return self._rename_column('my_table', 'name')
+        
+    def test_rename_foreign_key_column(self):
+        return self._rename_column('my_seat', 'table')
+    
+    def _rename_column(self, table, column):
+        cursor = sqlite3.connect(self.db).cursor()
+        start = len(cursor.execute("SELECT * from %s" % table).fetchone())
+        cursor.close()
+
+        squeak = Squeak(self.db, table)
+        squeak.rename_column(column, '%s_renamed' % column)
+
+        was_renamed = False
+        for field in squeak.fields:
+            if re.match('["\']%s_renamed' % column, field):
+                was_renamed = True
+                break
+
+        cursor = sqlite3.connect(self.db).cursor()
+        end = len(cursor.execute("SELECT * from %s" % table).fetchone())
+        cursor.close()
+        
+        return self.assert_(start == end and was_renamed)
+    
+    # -- Replace definition tests --
+    
+    def test_replace_regular_column_definition(self):
+        return self._replace_definition('my_table',
+                                        'name',
+                                        'varchar (20)')
+    
+    def test_replace_foreign_key_column_definition(self):
+        return self._replace_definition('my_seat',
+                                        'table',
+                                        'integer')
+    
+    
+    def _replace_definition(self, table, column, new_definition):
+        cursor = sqlite3.connect(self.db).cursor()
+        start = len(cursor.execute("SELECT * from %s" % table).fetchone())
+        cursor.close()
+
+        squeak = Squeak(self.db, table)
+        squeak.replace_definition(column, new_definition)
+
+        was_replaced = False
+        for field in squeak.fields:
+            m = re.match(r'^["\']?(%s)["\']?\s(.*)' % column, field)
+            if m and m.group(1) == column and m.group(2) == new_definition:
+                was_replaced = True
+                break
+
+        cursor = sqlite3.connect(self.db).cursor()
+        end = len(cursor.execute("SELECT * from %s" % table).fetchone())
+        cursor.close()
+        
+        return self.assert_(start == end and was_replaced)
+        
         
 if __name__ == "__main__":
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestDropColumn)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestSqueak)
     unittest.TextTestRunner(verbosity=2).run(suite)

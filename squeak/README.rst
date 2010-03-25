@@ -2,39 +2,64 @@
 Squeak
 ******
 
-What is it?
-===========
+Python helper for sqlite3. Allows to drop & alter columns.
 
-Squeak is a script and helper library for alterine Sqlite3 tables.
+Sample usage for a sqlite3 database 'db' with the following table:
 
-* Contained in only 1 file, very easy to get via wget or curl
+CREATE TABLE "my_table" (
+    "id" integer NOT NULL PRIMARY KEY,
+    "name" varchar (20) NOT NULL DEFAULT ""
+);
 
-* Both a straight forward executable script and a library that can be used by other scripts
+Examples from the command line
+==============================
 
-Examples
-========
+To drop the 'name' column:
 
-Here is an example of how Squeak might be used as an executable::
+::
 
-    $ sqlite3 db
-    SQLite version 3.6.12
-    Enter ".help" for instructions
-    Enter SQL statements terminated with a ";"
-    sqlite> CREATE TABLE "my_table" (
-       ...>     "id" integer NOT NULL PRIMARY KEY,
-       ...>     "name" varchar (20) NOT NULL DEFAULT ""
-       ...> )
-       ...> ;
-    sqlite> .quit
+    $ squeak.py db my_table drop_column name
 
-    $ ./squeak.py db my_table drop_column name
-    Column 'name' droped
+To rename the 'name' column to 'first_name':
 
-    $ sqlite3 db
-    SQLite version 3.6.12
-    Enter ".help" for instructions
-    Enter SQL statements terminated with a ";"
-    sqlite> .schema
-    CREATE TABLE "my_table" ("id" integer NOT NULL PRIMARY KEY);
-    sqlite> .quit
+::
 
+    $ squeak.py db my_table rename_column name first_name
+
+To allow the 'name' column to be null:
+
+::
+
+    $ squeak.py db my_table replace_definition name varchar \(20\)
+
+Same examples from the python shell
+===================================
+
+To drop the 'name' column:
+
+::
+
+    >>> from squeak import Squeak
+    >>> s = Squeak('db', 'my_table')
+    >>> s.drop_column('name')
+
+To rename the 'name' column to 'first_name':
+
+::
+
+    >>> from squeak import Squeak
+    >>> s = Squeak('db', 'my_table')
+    >>> s.drop_column('name')
+
+To allow the 'name' column to be null:
+
+::
+
+    >>> from squeak import Squeak
+    >>> s = Squeak('db', 'my_table')
+    >>> s.replace_definition('name', 'varchar (20)')
+
+Tests
+=====
+
+Squeak comes with a few unit tests. Just execute ``tests.py`` to run the suite.
