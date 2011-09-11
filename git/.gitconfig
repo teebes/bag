@@ -1,0 +1,29 @@
+[user]
+	name = Thibaud Morel
+	email = teebes@gmail.com
+
+[push]
+    default = current
+
+[alias]
+    co = checkout
+    st = status
+    ci = commit
+    br = branch
+
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+    interactive = auto
+    ui = true
+
+[merge]
+    summary = true
+    editor = vi
+
+[core]
+    excludesfile = /Users/thibaud/.gitignore
+[gitgoggles "table"]
+	left-padding = 1
+	right-padding = 1
