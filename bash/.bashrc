@@ -3,7 +3,10 @@ alias ll='ls -la'
 
 # --- settings ---
 export EDITOR="vi"
-export PATH=$PATH:/usr/local/mysql/bin
+
+if [ -f ~/.bashrc.local ]; then
+    source ~/.bashrc.local
+fi
 
 # --- colors ---
 BLACK='\e[0;30m'
@@ -73,3 +76,6 @@ if [ $SYS_BASE == "mac" ] ; then
     export LSCOLORS=ExFxCxDxBxegedabagacad
 fi
 
+if [ $SYS_BASE == "linux" ] ; then
+    alias ls='ls --color=auto'
+fi
