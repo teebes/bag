@@ -1,5 +1,6 @@
 # --- often used aliases ---
 alias ll='ls -la'
+alias ac='source /code/ve/bin/activate'
 
 # --- settings ---
 export EDITOR="vi"
