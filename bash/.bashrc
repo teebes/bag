@@ -6,7 +6,9 @@ alias ac='source /code/ve/bin/activate'
 export EDITOR="vi"
 
 for f in ~/.bashrc.d/.bash* ;  do
-    source $f; 
+    if [ -d f ] ; then
+        source $f; 
+    fi
 done
 
 if [ -f ~/.bashrc.local ]; then
