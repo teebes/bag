@@ -1,6 +1,8 @@
 # --- often used aliases ---
-alias ll='ls -la'
+alias ll='ls -lah'
 alias ac='source /code/ve/bin/activate'
+
+export PIP_DOWNLOAD_CACHE=$HOME/.pip_download_cache
 
 # --- settings ---
 export EDITOR="vi"
