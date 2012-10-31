@@ -23,7 +23,5 @@
     editor = vi
 
 [core]
-    excludesfile = /home/teebes/.gitignore
-[gitgoggles "table"]
-	left-padding = 1
-	right-padding = 1
+    excludesfile = ~/.gitignore
+
