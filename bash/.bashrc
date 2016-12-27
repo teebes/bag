@@ -1,6 +1,24 @@
 # --- often used aliases ---
 alias ll='ls -lah'
-alias ac='source /code/ve/bin/activate'
+
+# --- helpful functions ---
+supertouch() { # Touch and create in a single step
+    if [ $# -lt 1 ]; then
+        echo "Missing argument";
+        return 1;
+    fi
+
+    for f in "$@"; do
+        mkdir -p -- "$(dirname -- "$f")"
+        touch -- "$f"
+    done
+}
+alias stouch=supertouch
+
+ngrep() {
+    git grep -n "$1"
+}
+
 
 export PIP_DOWNLOAD_CACHE=$HOME/.pip_download_cache
 
@@ -9,7 +27,7 @@ export EDITOR="vi"
 
 for f in ~/.bashrc.d/.bash* ;  do
     if [ -d f ] ; then
-        source $f; 
+        source $f;
     fi
 done
 
